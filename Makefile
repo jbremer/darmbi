@@ -1,6 +1,8 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall -Werror -O2 -s
-LIB = -Idarm
+
+EXLIB = -Idarm
+EXOBJ = -Ldarm
 
 ifneq ($(OS),Windows_NT)
 	PIC_FLAGS = -fPIC
@@ -9,15 +11,21 @@ endif
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
-STUFF = darmbi.so
+STUFF = darmbi.so tests.exe
 
 default: $(STUFF)
 
+test: darmbi.so tests.exe
+	./tests.exe
+
 %.o: %.c
-	$(CC) $(CFLAGS) $(LIB) -o $@ -c $^ $(PIC_FLAGS)
+	$(CC) $(CFLAGS) $(EXLIB) -o $@ -c $^ $(PIC_FLAGS)
 
 darmbi.so: $(OBJ)
-	$(CC) $(CFLAGS) -shared -o $@ $^
+	$(CC) $(CFLAGS) $(EXOBJ) -shared -o $@ $^ -ldarm
 
-clean: $(OBJ) $(STUFF)
-	rm -rf $^
+tests.exe: tests.c darmbi.so
+	$(CC) $(CFLAGS) -o $@ tests.c darmbi.so
+
+clean:
+	rm -f $(OBJ) $(STUFF)
