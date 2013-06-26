@@ -21,8 +21,8 @@ int32_t darmbi_bbl_length(const uint32_t *insns, uint32_t max_length)
         // instructions that can alter PC in their destination register
         case I_ADC: case I_ADD: case I_ADR: case I_AND: case I_ASR:
         case I_BIC: case I_EOR: case I_LDR: case I_LSL: case I_LSR:
-        case I_MOV: case I_MVN: case I_ORR: case I_POP: case I_ROR:
-        case I_RRX: case I_RSB: case I_RSC: case I_SBC: case I_SUB:
+        case I_MOV: case I_MVN: case I_ORR: case I_ROR: case I_RRX:
+        case I_RSB: case I_RSC: case I_SBC: case I_SUB:
             if(d.Rd == PC) return length;
             break;
 
@@ -34,6 +34,12 @@ int32_t darmbi_bbl_length(const uint32_t *insns, uint32_t max_length)
         // instructions that can contain PC in their register list
         case I_LDM: case I_LDMDA: case I_LDMDB: case I_LDMIB:
             if((d.reglist >> PC) != 0) return length;
+            break;
+
+        // darm optimizes both LDM and LDR instructions to POP, so POP can
+        // either have the Rt register or a reglist
+        case I_POP:
+            if(d.Rt == PC || (d.reglist >> PC) != 0) return length;
             break;
         }
     }
