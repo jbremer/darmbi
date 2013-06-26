@@ -2,12 +2,12 @@
 #include <stdint.h>
 #include <darm.h>
 
-uint32_t darmbi_bbl_length(const uint32_t *insns, uint32_t max_length)
+int32_t darmbi_bbl_length(const uint32_t *insns, uint32_t max_length)
 {
     uint32_t length = 0; darm_t d;
 
-    for (; length < max_length; length++) {
-        if(darm_armv7_disasm(&d, insns[length]) < 0) {
+    while (length < max_length) {
+        if(darm_armv7_disasm(&d, insns[length++]) < 0) {
             fprintf(stderr, "Unhandled or Invalid Instruction: 0x%08x\n",
                 insns[length]);
             continue;
@@ -38,5 +38,5 @@ uint32_t darmbi_bbl_length(const uint32_t *insns, uint32_t max_length)
         }
     }
 
-    return length;
+    return -1;
 }
